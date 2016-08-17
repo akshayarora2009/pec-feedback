@@ -46,15 +46,20 @@
 // |      +--------------------------------------+        |
 // +------------------------------------------------------+
 
+const quesSuffix = 'question-'; 
+var results = {};
+
 var RadioButton = React.createClass({
     handleClick: function(event) {
-        console.log(`You clicked ${this.props.text} with ${event.target.value}`);
+        results[this.props.questionId] = event.target.value;
     },
 
     render: function() {
         return (
             <div className='fb-radio-button'>
-                <input type='radio' onChange={this.handleClick} value={this.props.text} />
+                <input type='radio' name={'fb-' + this.props.questionId}
+                    onChange={this.handleClick} value={this.props.text}
+                />
                 {this.props.text}
             </div>
         )
@@ -66,7 +71,9 @@ var RadioButtons = React.createClass({
         var id = 1;
         var buttons = this.props.options.map((a) => {
             return (
-                <RadioButton key={id++} text={a.toString()} />
+                <RadioButton key={id++} text={a.toString()}
+                    questionId={this.props.questionId}
+                />
             );
         });
 
@@ -91,18 +98,14 @@ var DescriptiveAnswer = React.createClass({
 
     handleChange: function(event) {
         var val = event.target.value;
-        if (this.first_time) {
-            val = val.substr(val.length - 1, val.length);
-            this.first_time = false;
-        }
-        console.log(val);
         this.setState({value: val});
+        results[this.props.questionId] = val;
     },
 
     render: function() {
         return (
             <input type='text'
-                value={this.state.value}
+                placeholder='enter'
                 onChange={this.handleChange}
             />
         );
@@ -113,9 +116,12 @@ var Answer = React.createClass({
     render: function() {
         switch (this.props.type) {
             case 'radio':
-                return (<RadioButtons options={this.props.options ? this.props.options : []} />);
+                return (<RadioButtons
+                            options={this.props.options ? this.props.options : []}
+                            questionId={this.props.questionId}
+                        />);
             case 'descriptive':
-                return (<DescriptiveAnswer />);
+                return (<DescriptiveAnswer questionId={this.props.questionId} />);
             default:
                 throw new TypeError('unknown type of answer');
         }
@@ -133,7 +139,11 @@ var FeedBackQuestionBox = React.createClass({
         return (
             <div className='fb-question-box'>
                 <QuestionText text={this.props.questionText} />
-                <Answer type={this.props.answerType} options={this.props.options} />
+                <Answer
+                    type={this.props.answerType}
+                    options={this.props.options}
+                    questionId={this.props.questionId}
+                />
             </div>
         );
     }
@@ -141,11 +151,13 @@ var FeedBackQuestionBox = React.createClass({
 
 var QuestionList = React.createClass({
     render: function() {
-        var listNodes = this.props.questionList.map((question) => {
+        var listNodes = this.props.questionList.map((question, id) => {
             return (<FeedBackQuestionBox
                         questionText={question.text} 
                         answerType={question.type}
                         options={question.type != "descriptive" ? question.options : null }
+                        key={'question-' + id}
+                        questionId={'question-' + id}
                     />);
         });
 
@@ -157,45 +169,100 @@ var QuestionList = React.createClass({
     }
 });
 
+var SubmitButton = React.createClass({
+    // handleSubmit: function(e) {
+
+    // },
+    render: function() {
+        return <input className='fb-submit-button' type='submit' value='Submit' />
+    }
+});
+
+// FeedBackFormHeading
+//      - FormTitle
+//      - FormDescription
+var FormTitle = React.createClass({
+    render: function() {
+        return <h1 className='fb-title'>{this.props.formTitle}</h1>;
+    }
+});
+
+var FormDescription = React.createClass({
+    render: function() {
+        return (
+            <p className='fb-description'>{this.props.formDescription}</p>
+        )
+    }
+});
+
+var FeedBackFormHeader = React.createClass({
+    render: function() {
+        return (
+            <div className='fb-header'>
+                <FormTitle formTitle={this.props.formTitle} />
+                <FormDescription formDescription={this.props.formDescription} />
+            </div>
+        );
+    }
+});
+
 var FeedBackForm = React.createClass({
-    getQuestionList: function() {
-        return [
-            {
-                text: "How are you?",
-                type: 'radio',
-                options: [
-                    "great!",
-                    "bad!",
-                    "don't want to tell"
-                ]
-            },
-            {
-                text: "What are you doing?",
-                type: 'descriptive',
-                options: []
-            },
-            {
-                text: "rate this website",
-                type: 'radio',
-                options: [
-                    '1',
-                    '2',
-                    '3',
-                    '4'
-                ]
-            },
-            {
-                text: 'Are you a gamer?',
-                type: 'radio',
-                options: [
-                    'yes',
-                    'no'
-                ]
-            }
-        ];
+    getData: function() {
+        return {
+            formTitle: 'Feedback Form',
+            formDescription: 'A simple feedback form written in react',
+            questionList: [
+                {
+                    text: "How are you?",
+                    type: 'radio',
+                    options: [
+                        "great!",
+                        "bad!",
+                        "don't want to tell"
+                    ]
+                },
+                {
+                    text: "What are you doing?",
+                    type: 'descriptive',
+                    options: []
+                },
+                {
+                    text: "rate this website",
+                    type: 'radio',
+                    options: [
+                        '1',
+                        '2',
+                        '3',
+                        '4'
+                    ]
+                },
+                {
+                    text: 'Are you a gamer?',
+                    type: 'radio',
+                    options: [
+                        'yes',
+                        'no'
+                    ]
+                }
+            ]
+        };
+    },
+
+    handleSubmit: function(e) {
+        e.preventDefault();
+        console.log(results);
     },
     render: function() {
-        return (<QuestionList questionList={this.getQuestionList()} />);
+        var data = this.getData();
+        return (
+            <div className='fb-form'>
+                <FeedBackFormHeader formTitle={data.formTitle} formDescription={data.formDescription} />
+                <form className='feedback-form' onSubmit={this.handleSubmit} >
+                    <QuestionList questionList={data.questionList} />
+                    <SubmitButton />
+                </form>
+            </div>
+        );
     }
 });
 
