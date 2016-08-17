@@ -130,7 +130,7 @@ var Answer = React.createClass({
 
 var QuestionText = React.createClass({
     render: function() {
-        return (<h2 className='fb-question-text'>{this.props.text}</h2>);
+        return (<p className='fb-question-text'>{this.props.text}</p>);
     }
 });
 
