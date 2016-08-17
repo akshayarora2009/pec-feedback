@@ -1,4 +1,4 @@
-//
+
 // - FeedBackForm
 //    - QuestionList
 //        - FeedBackQuestionBox
@@ -8,7 +8,7 @@
 //                - LevelsBasedAnswer
 //                - DescriptiveAnswer
 //    - SubmitButton
-//
+
 
 
 
@@ -46,19 +46,28 @@
 // |      +--------------------------------------+        |
 // +------------------------------------------------------+
 
-// helper component for radioButtons
 var RadioButton = React.createClass({
+    handleClick: function(event) {
+        console.log(`You clicked ${this.props.text} with ${event.target.value}`);
+    },
+
     render: function() {
-        return (<input className='fb-radio' type='radio' value={this.props.option} />);
+        return (
+            <div className='fb-radio-button'>
+                <input type='radio' onChange={this.handleClick} value={this.props.text} />
+                {this.props.text}
+            </div>
+        )
     }
 });
-
 // this.props.options is an array having all options
 var RadioButtons = React.createClass({
     render: function() {
         var id = 1;
         var buttons = this.props.options.map((a) => {
-            return (<RadioButton option={a.toString()} key={id++} />);
+            return (
+                <RadioButton key={id++} text={a.toString()} />
+            );
         });
 
         return (
@@ -75,8 +84,28 @@ var RadioButtons = React.createClass({
 // });
 
 var DescriptiveAnswer = React.createClass({
+    getInitialState: function() {
+        this.first_time = true;
+        return { value: 'Enter text...' }
+    },
+
+    handleChange: function(event) {
+        var val = event.target.value;
+        if (this.first_time) {
+            val = val.substr(val.length - 1, val.length);
+            this.first_time = false;
+        }
+        console.log(val);
+        this.setState({value: val});
+    },
+
     render: function() {
-        return (<input className='fb-textbox' type='text' />);
+        return (
+            <input type='text'
+                value={this.state.value}
+                onChange={this.handleChange}
+            />
+        );
     }
 });
 
@@ -141,9 +170,27 @@ var FeedBackForm = React.createClass({
                 ]
             },
             {
-                text: "How are you?",
+                text: "What are you doing?",
                 type: 'descriptive',
                 options: []
+            },
+            {
+                text: "rate this website",
+                type: 'radio',
+                options: [
+                    '1',
+                    '2',
+                    '3',
+                    '4'
+                ]
+            },
+            {
+                text: 'Are you a gamer?',
+                type: 'radio',
+                options: [
+                    'yes',
+                    'no'
+                ]
             }
         ];
     },
@@ -154,4 +201,3 @@ var FeedBackForm = React.createClass({
 
 
 ReactDOM.render(<FeedBackForm />, document.getElementById('content'));
-
