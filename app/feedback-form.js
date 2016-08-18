@@ -1,3 +1,5 @@
+ // - CourseOptions
+ //    - CourseOption
 
 // - FeedBackForm
 //    - QuestionList
@@ -8,43 +10,24 @@
 //                - LevelsBasedAnswer
 //                - DescriptiveAnswer
 //    - SubmitButton
-
-
-
-
-// +------------------------------------------------------+
-// |  FeedBackForm                                        |
-// |                                                      |
-// |      +--------------------------------------+        |
-// |      | QuestionList                         |        |
-// |      |                                      |        |
-// |      |   +----------------------------+     |        |
-// |      |   |   FeedBackQuestionBox      |     |        |
-// |      |   |                            |     |        |
-// |      |   | +------------------------+ |     |        |
-// |      |   | | QuestionText           | |     |        |
-// |      |   | +------------------------+ |     |        |
-// |      |   |                            |     |        |
-// |      |   | +------------------------+ |     |        |
-// |      |   | | Answer                 | |     |        |
-// |      |   | |                        | |     |        |
-// |      |   | | +-------------------+  | |     |        |
-// |      |   | | |  RadioButtons     |  | |     |        |
-// |      |   | | +-------------------+  | |     |        |
-// |      |   | |          or            | |     |        |
-// |      |   | | +-------------------+  | |     |        |
-// |      |   | | | LevelsBasedAnswer |  | |     |        |
-// |      |   | | +-------------------+  | |     |        |
-// |      |   | |          or            | |     |        |
-// |      |   | | +-------------------+  | |     |        |
-// |      |   | | | DescriptiveAnswer |  | |     |        |
-// |      |   | | +-------------------+  | |     |        |
-// |      |   | +------------------------+ |     |        |
-// |      |   |                            |     |        |
-// |      |   +----------------------------+     |        |
-// |      |                                      |        |
-// |      +--------------------------------------+        |
-// +------------------------------------------------------+
+var CourseOptions = React.createClass({
+    handleChange: function(event) {
+        this.setState({value: event.target.value});
+        renderFeedBackPage(event.target.value);
+    },
+    render: function() {
+        var options = this.props.courses.map((course) => {
+            return (
+                <option value={course.name} key={course.id}>{course.name}</option>
+            );
+        });
+        return (
+            <select value='Select Course' onChange={this.handleChange} >
+                {options}
+            </select>
+        );
+    }
+});
 
 const quesSuffix = 'question-'; 
 var results = {};
@@ -266,5 +249,29 @@ var FeedBackForm = React.createClass({
     }
 });
 
+function getCourses() {
+    return [
+        {
+            "id": "CSN201",
+            "name": "Computer Science"
+        },
+        {
+            "id": "CSN203",
+            "name": "Computer Science 2"
+        },
+        {
+            "id": "CSN204",
+            "name": "Computer Science 3"
+        },
+        {
+            "id": "CSN205",
+            "name": "Computer Science 4"
+        }
+    ]
+}
 
-ReactDOM.render(<FeedBackForm />, document.getElementById('content'));
+function renderFeedBackPage(course) {
+    ReactDOM.render(<FeedBackForm />, document.getElementById('content'));
+}
+
+ReactDOM.render(<CourseOptions courses={getCourses()} />, document.getElementById('content'));
