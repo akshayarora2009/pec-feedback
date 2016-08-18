@@ -1,0 +1,21 @@
+[
+    {
+        "questionType": "radio",
+        "question": "What do you think of this teacher?",
+        "options": [
+            "Good",
+            "Bad",
+            "Nice"
+        ]
+    },
+    {
+        "questionType": "descriptive",
+        "question": "How are you feeling?",
+        "options": []
+    },
+    {
+        "questionType": "radio",
+        "question": "Will you rate this website?",
+        "options": [ "yes", "no" ]
+    }
+]
