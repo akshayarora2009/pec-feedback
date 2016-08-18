@@ -1,0 +1,24 @@
+{
+  "name": "pec-feedback",
+  "version": "1.0.0",
+  "description": "Feedback form",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akshayarora2009/pec-feedback.git"
+  },
+  "keywords": [
+    "feedback",
+    "react",
+    "mongo"
+  ],
+  "author": "princedhaliwal, crypton3535",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/akshayarora2009/pec-feedback/issues"
+  },
+  "homepage": "https://github.com/akshayarora2009/pec-feedback#readme"
+}
