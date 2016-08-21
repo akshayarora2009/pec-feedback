@@ -27,7 +27,8 @@ let server = http.createServer((req, res) => {
     } else if (p.pathname === '/record') {
         server.recordResponse(p, req, res);
     } else {
-        res.end(404);
+        res.writeHead(404);
+        res.end();
     }
 });
 
@@ -83,7 +84,21 @@ server.sendFeedBackQuestions = function(p, req, res) {
 }
 
 server.recordResponse = function(p, req, res) {
+    let whole = '';
+    if (req.method == 'POST') {
+        req.on('data', (chunk) => {
+            // consider adding size limit here
+            console.log(chunk.toString('utf8'));
+            whole += chunk.toString('utf8');
+        });
 
+        req.on('end', () => {
+            console.log(whole);
+            res.writeHead(200, 'OK', {'Content-Type': 'text/html'});
+            res.end('Data received.');
+            maindb.recordResponse(JSON.parse(whole));
+        });
+    }
 };
 
 server.listen(8080);
