@@ -17,5 +17,10 @@
         "questionType": "radio",
         "question": "Will you rate this website?",
         "options": [ "yes", "no" ]
+    },
+    {
+        "questionType": "radio",
+        "question": "Rate this course",
+        "options": [ 1, 2, 3, 4, 5 ]
     }
 ]
