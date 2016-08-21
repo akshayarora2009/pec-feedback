@@ -27,3 +27,7 @@ exports.getInstructor = function(query) {
 exports.getCourse = function(cid) {
     return { 'name': 'Computer Science 2'};
 }
+
+exports.recordResponse = function(res) {
+    
+}
