@@ -31,6 +31,7 @@ var CourseOptions = React.createClass({
 
 const quesSuffix = 'question-'; 
 var results = {};
+var courses = [];
 
 var RadioButton = React.createClass({
     handleClick: function(event) {
@@ -136,7 +137,7 @@ var QuestionList = React.createClass({
     render: function() {
         var listNodes = this.props.questionList.map((question, id) => {
             return (<FeedBackQuestionBox
-                        questionText={question.text} 
+                        questionText={question.question} 
                         answerType={question.type}
                         options={question.type != "descriptive" ? question.options : null }
                         key={'question-' + id}
@@ -190,53 +191,65 @@ var FeedBackFormHeader = React.createClass({
 });
 
 var FeedBackForm = React.createClass({
-    getData: function() {
-        return {
-            formTitle: 'Feedback Form',
-            formDescription: 'A simple feedback form written in react',
-            questionList: [
-                {
-                    text: "How are you?",
-                    type: 'radio',
-                    options: [
-                        "great!",
-                        "bad!",
-                        "don't want to tell"
-                    ]
-                },
-                {
-                    text: "What are you doing?",
-                    type: 'descriptive',
-                    options: []
-                },
-                {
-                    text: "rate this website",
-                    type: 'radio',
-                    options: [
-                        '1',
-                        '2',
-                        '3',
-                        '4'
-                    ]
-                },
-                {
-                    text: 'Are you a gamer?',
-                    type: 'radio',
-                    options: [
-                        'yes',
-                        'no'
-                    ]
-                }
-            ]
-        };
-    },
+    // getData: function() {
+    //     return {
+    //         formTitle: 'Feedback Form',
+    //         formDescription: 'A simple feedback form written in react',
+    //         questionList: [
+    //             {
+    //                 text: "How are you?",
+    //                 type: 'radio',
+    //                 options: [
+    //                     "great!",
+    //                     "bad!",
+    //                     "don't want to tell"
+    //                 ]
+    //             },
+    //             {
+    //                 text: "What are you doing?",
+    //                 type: 'descriptive',
+    //                 options: []
+    //             },
+    //             {
+    //                 text: "rate this website",
+    //                 type: 'radio',
+    //                 options: [
+    //                     '1',
+    //                     '2',
+    //                     '3',
+    //                     '4'
+    //                 ]
+    //             },
+    //             {
+    //                 text: 'Are you a gamer?',
+    //                 type: 'radio',
+    //                 options: [
+    //                     'yes',
+    //                     'no'
+    //                 ]
+    //             }
+    //         ]
+    //     };
+    // },
 
     handleSubmit: function(e) {
         e.preventDefault();
         console.log(results);
+
+        var url = '/record';
+        $.ajax({
+            url: url,
+            type: 'post',
+            dataType: 'json',
+            data: JSON.stringify(results),
+        }).done((data) => {
+            console.log(data);
+        }).fail(() => {
+            console.log('error');
+        })
     },
     render: function() {
-        var data = this.getData();
+        var data = this.props.data;
         return (
             <div className='fb-form'>
                 <FeedBackFormHeader formTitle={data.formTitle} formDescription={data.formDescription} />
@@ -270,8 +283,29 @@ function getCourses() {
     ]
 }
 
-function renderFeedBackPage(course) {
-    ReactDOM.render(<FeedBackForm />, document.getElementById('content'));
+function getAuthToken() {
+    return '14103088';
 }
 
-ReactDOM.render(<CourseOptions courses={getCourses()} />, document.getElementById('content'));
+function renderFeedBackPage(course) {
+    var i;
+    for (var j in courses) {
+        if (courses[j].name === course) {
+            i = j;
+            break;
+        }
+    }
+
+    var url = '/feedback?auth=' + getAuthToken() + '&courseid=' + courses[i].id;
+    $.ajax({
+        dataType: 'json',
+        url: url,
+    }).done(function(data) {
+        console.log('Got data', data);
+        ReactDOM.render(<FeedBackForm data={data} />, document.getElementById('content'));
+    }).fail(function(data) {
+        console.log('could not get data');
+    });
+}
+
+ReactDOM.render(<CourseOptions courses={courses = getCourses()} />, document.getElementById('content'));
