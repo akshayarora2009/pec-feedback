@@ -11,6 +11,20 @@ const template = fs.readFileSync('templates/template.json',
 const indexHtml = fs.readFileSync('index.html', { 'encoding': 'utf8' }).toString();
 const indexFeedbackJs = fs.readFileSync('./app/feedback-form.js', { 'encoding' : 'utf8' }).toString();
 
+function GetPostData(req, callback) {
+    let whole = '';
+    req.on('data', (chunk) => {
+        // consider adding size limit here
+        console.log(chunk.toString('utf8'));
+        whole += chunk.toString('utf8');
+    });
+
+    req.on('end', () => {
+        console.log(whole);
+        callback(whole);
+    });
+}
+
 let server = http.createServer((req, res) => {
     console.log(`request for ${req.url}`)
     let p = url.parse(req.url, true);
@@ -26,11 +40,27 @@ let server = http.createServer((req, res) => {
         server.sendFeedBackQuestions(p, req, res);
     } else if (p.pathname === '/record') {
         server.recordResponse(p, req, res);
+    } else if (p.pathname === '/user') {
+        server.sendUserInformation(p, req, res);
     } else {
         res.writeHead(404);
         res.end();
     }
 });
+
+server.sendUserInformation = function(p, req, res) {
+    if (req.method === 'POST') {
+        GetPostData(req, function(data) {
+            // getOptedCourses take sid and will return list of opted courses
+            var sid = JSON.parse(data);
+            let courseList = maindb.getOptedCourses({ 'sid': sid });
+            courseList = JSON.stringify(courseList);
+
+            res.writeHead(200, { 'Content-Type': 'application/json' });
+            res.end(courseList);
+        });
+    }
+};
 
 server.sendHomePage = function(req, res) {
     res.writeHead(200, {'Content-Type' : 'text/html'});
@@ -55,14 +85,6 @@ server.sendApp = function(p, req, res) {
 };
 
 server.sendCourseList = function(p, req, res) {
-    let auth = p.query.auth;
-
-    // getOptedCourses take sid and will return list of opted courses
-    let courseList = maindb.getOptedCourses({ 'auth': auth });
-    courseList = JSON.stringify(courseList);
-
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(courseList);
 };
 
 server.sendFeedBackQuestions = function(p, req, res) {
@@ -86,17 +108,10 @@ server.sendFeedBackQuestions = function(p, req, res) {
 server.recordResponse = function(p, req, res) {
     let whole = '';
     if (req.method == 'POST') {
-        req.on('data', (chunk) => {
-            // consider adding size limit here
-            console.log(chunk.toString('utf8'));
-            whole += chunk.toString('utf8');
-        });
-
-        req.on('end', () => {
-            console.log(whole);
-            res.writeHead(200, 'OK', {'Content-Type': 'text/html'});
+        GetPostData(req, function(data) {
+            res.writeHead(200, {'Content-Type': 'text/html'});
             res.end('Data received.');
-            maindb.recordResponse(JSON.parse(whole));
+            maindb.recordResponse(JSON.parse(data));
         });
     }
 };
